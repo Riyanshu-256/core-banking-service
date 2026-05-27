@@ -1,13 +1,14 @@
+// ================= IMPORTS =================
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const emailService = require("../services/email.service");
 
 // ================= REGISTER =================
-
 async function userRegisterController(req, res) {
   try {
     const { email, name, password } = req.body;
 
-    // Validation
+    // ================= VALIDATION =================
     if (!email || !name || !password) {
       return res.status(400).json({
         message: "All fields are required",
@@ -15,7 +16,7 @@ async function userRegisterController(req, res) {
       });
     }
 
-    // Check existing user
+    // ================= CHECK EXISTING USER =================
     const isExist = await userModel.findOne({ email });
 
     if (isExist) {
@@ -25,22 +26,22 @@ async function userRegisterController(req, res) {
       });
     }
 
-    // IMPORTANT:
-    // DO NOT hash password here
-    // Schema middleware already hashes it
-
+    // ================= CREATE USER =================
     const user = await userModel.create({
       name,
       email,
       password,
     });
 
-    // Generate token
+    // ================= SEND REGISTRATION EMAIL =================
+    await emailService.sendRegistrationEmail(user.email, user.name);
+
+    // ================= GENERATE JWT TOKEN =================
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
-    // Set cookie
+    // ================= SET COOKIE =================
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -48,7 +49,7 @@ async function userRegisterController(req, res) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // Response
+    // ================= RESPONSE =================
     return res.status(201).json({
       message: "User registered successfully",
       user: {
@@ -59,7 +60,7 @@ async function userRegisterController(req, res) {
       token,
     });
   } catch (error) {
-    console.log(error);
+    console.log("REGISTER ERROR:", error);
 
     return res.status(500).json({
       message: "Internal server error",
@@ -69,12 +70,11 @@ async function userRegisterController(req, res) {
 }
 
 // ================= LOGIN =================
-
 async function userLoginController(req, res) {
   try {
     const { email, password } = req.body;
 
-    // Find user
+    // ================= FIND USER =================
     const user = await userModel.findOne({ email }).select("+password");
 
     if (!user) {
@@ -83,7 +83,7 @@ async function userLoginController(req, res) {
       });
     }
 
-    // Compare password using schema method
+    // ================= CHECK PASSWORD =================
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
@@ -92,12 +92,12 @@ async function userLoginController(req, res) {
       });
     }
 
-    // Generate token
+    // ================= GENERATE JWT TOKEN =================
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
-    // Set cookie
+    // ================= SET COOKIE =================
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -105,6 +105,7 @@ async function userLoginController(req, res) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    // ================= RESPONSE =================
     return res.status(200).json({
       message: "Login successful",
       user: {
@@ -115,7 +116,7 @@ async function userLoginController(req, res) {
       token,
     });
   } catch (error) {
-    console.log(error);
+    console.log("LOGIN ERROR:", error);
 
     return res.status(500).json({
       message: "Internal server error",
@@ -124,6 +125,7 @@ async function userLoginController(req, res) {
   }
 }
 
+// ================= EXPORTS =================
 module.exports = {
   userRegisterController,
   userLoginController,
