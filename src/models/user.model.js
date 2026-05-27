@@ -1,7 +1,7 @@
-//This file defines how user data will be stored in MongoDB.
+// This file defines how user data will be stored in MongoDB.
 
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs ");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"],
 
       // Prevents duplicate emails
-      unique: [true, "Email already exists"],
+      unique: true,
     },
 
     name: {
@@ -50,16 +50,14 @@ const userSchema = new mongoose.Schema(
 );
 
 // Encrypt password before saving user
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   // If password is not modified, move to next step
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
 
   // Hashing password
   this.password = await bcrypt.hash(this.password, 10);
-
-  next();
 });
 
 // Function to check whether entered password is correct or not
