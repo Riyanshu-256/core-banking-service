@@ -13,26 +13,15 @@ const accountSchema = new mongoose.Schema(
     // Account Status
     status: {
       type: String,
-
       enum: ["active", "inactive", "blocked"],
-
       default: "active",
     },
 
     // Currency
     currency: {
       type: String,
-
       enum: ["INR", "USD", "EUR"],
-
       default: "INR",
-    },
-
-    // Balance
-    balance: {
-      type: Number,
-
-      default: 0,
     },
   },
 
@@ -42,7 +31,7 @@ const accountSchema = new mongoose.Schema(
   },
 );
 
-userSchema.index({ user: 1, status: 1 });
+accountSchema.index({ user: 1, status: 1 });
 
 // Create Model
 const accountModel = mongoose.model("Account", accountSchema);
