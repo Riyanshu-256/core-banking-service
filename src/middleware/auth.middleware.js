@@ -1,5 +1,6 @@
 // This middleware checks whether the user is logged in or not before allowing access to protected/private APIs
 
+const tokenBlackListModel = require("../models/blackList.model");
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 
@@ -11,6 +12,14 @@ async function authMiddleware(req, res, next) {
   if (!token) {
     return res.status(401).json({
       message: "Access denied. Authentication token is missing.",
+    });
+  }
+
+  const isBlacklisted = await tokenBlackListModel.findOne({ token });
+
+  if (isBlacklisted) {
+    return res.status(401).json({
+      message: "unauthorized access, token is inavalid",
     });
   }
 
@@ -42,6 +51,14 @@ async function authSystemUserMiddleware(req, res, next) {
   if (!token) {
     return res.status(401).json({
       message: "Access denied. Authentication token is missing.",
+    });
+  }
+
+  const isBlacklisted = await tokenBlackListModel.findOne({ token });
+
+  if (isBlacklisted) {
+    return res.status(401).json({
+      message: "unauthorized access, token is inavalid",
     });
   }
 
