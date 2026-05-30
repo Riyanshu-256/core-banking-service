@@ -58,7 +58,7 @@ ledgerSchema.pre("findOneAndDelete", preventLedgerModification);
 ledgerSchema.pre("findOneAndReplace", preventLedgerModification);
 
 // Create ledger model
-const ledgerModel = mongoose.model("ledger", "ledgerSchema");
+const ledgerModel = mongoose.model("Ledger", ledgerSchema);
 
 // export
 module.exports = ledgerModel;
