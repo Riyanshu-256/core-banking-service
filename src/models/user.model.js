@@ -43,6 +43,12 @@ const userSchema = new mongoose.Schema(
       // Password will not be returned when fetching user data
       select: false,
     },
+    systemUser: {
+      type: Boolean,
+      default: false,
+      immutable: true,
+      select: false,
+    },
   },
   {
     timestamps: true,
