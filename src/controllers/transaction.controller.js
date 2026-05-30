@@ -85,38 +85,45 @@ async function createTransaction(req, res) {
   const session = await mongoose.startSession();
   session.startTransaction();
 
-  const transaction = await transactionModel.create(
-    {
-      fromAccount,
-      toAccount,
-      amount,
-      idempotencyKey,
-      status: "PENDING",
-    },
+  const [transaction] = await transactionModel.create(
+    [
+      {
+        fromAccount,
+        toAccount,
+        amount,
+        idempotencyKey,
+        status: "PENDING",
+      },
+    ],
     { session },
   );
 
   // 6. Create Debit Ledger Entry
-  const debitLedgerEntry = await ledgerModel.create(
-    {
-      account: fromAccount,
-      amount: amount,
-      transaction: transaction._id,
-      type: "DEBIT",
-    },
+  const [debitLedgerEntry] = await ledgerModel.create(
+    [
+      {
+        account: fromAccount,
+        amount,
+        transaction: transaction._id,
+        type: "DEBIT",
+      },
+    ],
     { session },
   );
 
   // 7. Create Credit Ledger Entry
-  const creditLedgerEntry = await ledgerModel.create(
-    {
-      account: toAccount,
-      amount: amount,
-      transaction: transaction._id,
-      type: "CREDIT",
-    },
+  const [creditLedgerEntry] = await ledgerModel.create(
+    [
+      {
+        account: toAccount,
+        amount,
+        transaction: transaction._id,
+        type: "CREDIT",
+      },
+    ],
     { session },
   );
+
   // 8. Mark transaction completed
   transaction.status = "COMPLETED";
   await transaction.save({ session });
@@ -167,6 +174,7 @@ async function createInitialFundsTransaction(req, res) {
       systemUser: true,
     })
     .select("+systemUser");
+  console.log("SYSTEM USER =", systemUser);
 
   if (!systemUser) {
     return res.status(400).json({
@@ -177,6 +185,9 @@ async function createInitialFundsTransaction(req, res) {
   const fromUserAccount = await accountModel.findOne({
     user: systemUser._id,
   });
+
+  console.log("SYSTEM USER ID =", systemUser._id);
+  console.log("FROM USER ACCOUNT =", fromUserAccount);
 
   if (!fromUserAccount) {
     return res.status(400).json({
