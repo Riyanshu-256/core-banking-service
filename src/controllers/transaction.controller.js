@@ -140,7 +140,11 @@ async function createTransaction(req, res) {
 }
 
 async function createInitialFundsTransaction(req, res) {
+  console.log("REQ BODY =", req.body);
   const { toAccount, amount, idempotencyKey } = req.body;
+  console.log("toAccount =", toAccount);
+  console.log("amount =", amount);
+  console.log("idempotencyKey =", idempotencyKey);
 
   if (!toAccount || !amount || !idempotencyKey) {
     return res.status(400).json({
@@ -182,39 +186,47 @@ async function createInitialFundsTransaction(req, res) {
 
   const fromAccount = fromUserAccount._id;
 
+  console.log("fromAccount =", fromAccount);
+
   // create session
   const session = await mongoose.startSession();
   session.startTransaction();
 
-  const transaction = await transactionModel.create(
-    {
-      fromAccount,
-      toAccount,
-      amount,
-      idempotencyKey,
-      status: "PENDING",
-    },
+  const [transaction] = await transactionModel.create(
+    [
+      {
+        fromAccount,
+        toAccount,
+        amount,
+        idempotencyKey,
+        status: "PENDING",
+      },
+    ],
     { session },
   );
   // Create Debit Ledger Entry
-  const debitLedgerEntry = await ledgerModel.create(
-    {
-      account: fromAccount,
-      amount: amount,
-      transaction: transaction._id,
-      type: "DEBIT",
-    },
+  const [debitLedgerEntry] = await ledgerModel.create(
+    [
+      {
+        account: fromAccount,
+        amount,
+        transaction: transaction._id,
+        type: "DEBIT",
+      },
+    ],
     { session },
   );
 
   // Create Credit Ledger Entry
-  const creditLedgerEntry = await ledgerModel.create(
-    {
-      account: toAccount,
-      amount: amount,
-      transaction: transaction._id,
-      type: "CREDIT",
-    },
+  const [creditLedgerEntry] = await ledgerModel.create(
+    [
+      {
+        account: toAccount,
+        amount,
+        transaction: transaction._id,
+        type: "CREDIT",
+      },
+    ],
     { session },
   );
   // Mark transaction completed
