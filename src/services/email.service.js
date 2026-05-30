@@ -182,126 +182,114 @@ Banking-Server Team
   await sendEmail(userEmail, subject, text, html);
 }
 
-// // ======================================
-// // TRANSACTION SUCCESS EMAIL
-// // ======================================
-// async function sendTransactionEmail(
-//   userEmail,
-//   name,
-//   amount,
-//   toAccount
-// ) {
+// ======================================
+// TRANSACTION SUCCESS EMAIL
+// ======================================
+async function sendTransactionEmail(userEmail, name, amount, toAccount) {
+  const subject = "✅ Transaction Successful";
 
-//   const subject = "✅ Transaction Successful";
+  const text = `
+Hello ${name},
 
-//   const text = `
-// Hello ${name},
+Your transaction was successful.
 
-// Your transaction was successful.
+Amount: ₹${amount}
+To Account: ${toAccount}
 
-// Amount: ₹${amount}
-// To Account: ${toAccount}
+Thank you for using Banking-Server.
 
-// Thank you for using Banking-Server.
+Best Regards,
+Banking-Server Team
+`;
 
-// Best Regards,
-// Banking-Server Team
-// `;
+  const html = `
+  <div style="font-family:Arial;padding:30px;">
 
-//   const html = `
-//   <div style="font-family:Arial;padding:30px;">
+      <h2>✅ Transaction Successful</h2>
 
-//       <h2>✅ Transaction Successful</h2>
+      <p>Hello ${name},</p>
 
-//       <p>Hello ${name},</p>
+      <p>Your money transfer was completed successfully.</p>
 
-//       <p>Your money transfer was completed successfully.</p>
+      <div style="
+          background:#f4f4f4;
+          padding:20px;
+          border-radius:10px;
+      ">
+          <p><strong>Amount:</strong> ₹${amount}</p>
 
-//       <div style="
-//           background:#f4f4f4;
-//           padding:20px;
-//           border-radius:10px;
-//       ">
-//           <p><strong>Amount:</strong> ₹${amount}</p>
+          <p><strong>To Account:</strong> ${toAccount}</p>
+      </div>
 
-//           <p><strong>To Account:</strong> ${toAccount}</p>
-//       </div>
+      <br/>
 
-//       <br/>
+      <p>
+        Thank you for using Banking-Server 💳
+      </p>
+  </div>
+  `;
 
-//       <p>
-//         Thank you for using Banking-Server 💳
-//       </p>
-//   </div>
-//   `;
+  await sendEmail(userEmail, subject, text, html);
+}
 
-//   await sendEmail(userEmail, subject, text, html);
-// }
+// ======================================
+// TRANSACTION FAILED EMAIL
+// ======================================
+async function sendTransactionFailureEmail(userEmail, name, amount, toAccount) {
+  const subject = "❌ Transaction Failed";
 
-// // ======================================
-// // TRANSACTION FAILED EMAIL
-// // ======================================
-// async function sendTransactionFailureEmail(
-//   userEmail,
-//   name,
-//   amount,
-//   toAccount
-// ) {
+  const text = `
+Hello ${name},
 
-//   const subject = "❌ Transaction Failed";
+We regret to inform you that your transaction failed.
 
-//   const text = `
-// Hello ${name},
+Amount: ₹${amount}
+To Account: ${toAccount}
 
-// We regret to inform you that your transaction failed.
+Please try again later.
 
-// Amount: ₹${amount}
-// To Account: ${toAccount}
+Best Regards,
+Banking-Server Team
+`;
 
-// Please try again later.
+  const html = `
+  <div style="font-family:Arial;padding:30px;">
 
-// Best Regards,
-// Banking-Server Team
-// `;
+      <h2>❌ Transaction Failed</h2>
 
-//   const html = `
-//   <div style="font-family:Arial;padding:30px;">
+      <p>Hello ${name},</p>
 
-//       <h2>❌ Transaction Failed</h2>
+      <p>
+        Your transaction could not be completed.
+      </p>
 
-//       <p>Hello ${name},</p>
+      <div style="
+          background:#fff4f4;
+          padding:20px;
+          border-radius:10px;
+          border:1px solid #fca5a5;
+      ">
+          <p><strong>Amount:</strong> ₹${amount}</p>
 
-//       <p>
-//         Your transaction could not be completed.
-//       </p>
+          <p><strong>To Account:</strong> ${toAccount}</p>
+      </div>
 
-//       <div style="
-//           background:#fff4f4;
-//           padding:20px;
-//           border-radius:10px;
-//           border:1px solid #fca5a5;
-//       ">
-//           <p><strong>Amount:</strong> ₹${amount}</p>
+      <br/>
 
-//           <p><strong>To Account:</strong> ${toAccount}</p>
-//       </div>
+      <p>
+        Please try again later or contact support.
+      </p>
+  </div>
+  `;
 
-//       <br/>
-
-//       <p>
-//         Please try again later or contact support.
-//       </p>
-//   </div>
-//   `;
-
-//   await sendEmail(userEmail, subject, text, html);
-// }
+  await sendEmail(userEmail, subject, text, html);
+}
 
 // ======================================
 // EXPORTS
 // ======================================
 module.exports = {
   sendRegistrationEmail,
-  //   sendTransactionEmail,
-  //   sendTransactionFailureEmail,
+  sendTransactionEmail,
+  sendTransactionFailureEmail,
 };
